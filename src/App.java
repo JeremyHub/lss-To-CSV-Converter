@@ -3,8 +3,6 @@ import org.w3c.dom.*;
 import java.io.*;
 import org.xml.sax.*;
 
-import jdk.nashorn.internal.parser.Scanner;
-
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.Scanner;
@@ -91,7 +89,7 @@ public class App {
                         }
 
                         //add time to run
-                        runList[Integer.parseInt(timeID)-1].setProperty(segmentName, timeStr);
+                        runList[Integer.parseInt(timeID)-1].setProperty(segmentName, timeStrToSec(timeStr));
                     }
                 }
             }
@@ -130,5 +128,15 @@ public class App {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static String timeStrToSec(String timeStr) {
+        if (timeStr == "") return "";
+        int hour = Integer.parseInt(timeStr.substring(0, 2));
+        int min = Integer.parseInt(timeStr.substring(3, 5));
+        Double sec = Double.parseDouble(timeStr.substring(6));
+        min += hour * 60.0;
+        sec += min * 60.0;
+        return Double.toString(sec);
     }
 }
