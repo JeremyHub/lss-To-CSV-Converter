@@ -33,7 +33,7 @@ public class App {
             Properties currentRun = new Properties();
             Properties[] runList = {currentRun};
 
-            // populates runlist with correct amount of IRuns with correct IDs and dateTimeStarted
+            // populates runlist with correct amount of runs with correct IDs and dateTimeStarted
             for (int i=0; i<attemptList.getLength(); i++) {
                 // loads id data
                 Node attempt = attemptList.item(i);
@@ -41,7 +41,7 @@ public class App {
                 String id = attemptElement.getAttribute("id");
                 String dateTimeStarted = attemptElement.getAttribute("started");
 
-                //creates irun with correct id and puts it in runlist
+                //updates runlist to be 1 longer, and adds the current run
                 runList = Arrays.copyOf(runList, runList.length + 1);
                 currentRun = new Properties();
                 currentRun.setProperty("id", id);
@@ -50,7 +50,7 @@ public class App {
             }
 
             String[] segmentNames = new String[segmentData.getLength()];
-            //loops through segments, putting the data in the IRun list
+            //loops through segments, putting the data in the run list
             for (int i=0; i<segmentData.getLength(); i++) {
                 //loads data
                 Node segment = segmentData.item(i);
@@ -89,12 +89,14 @@ public class App {
                         }
 
                         //add time to run
-                        runList[Integer.parseInt(timeID)-1].setProperty(segmentName, timeStrToSec(timeStr));
+                        int index = findIndexOfPropertyWithIDInList(runList, timeID);
+                        runList[index].setProperty(segmentName, timeStrToSec(timeStr));
                     }
                 }
             }
             
             writeToCSV(runList, csvName, segmentNames);
+            s.close();
 
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
@@ -110,27 +112,32 @@ public class App {
             FileWriter fw = new FileWriter(filename,true);
             BufferedWriter bw = new BufferedWriter(fw);
             PrintWriter pw = new PrintWriter(bw);
-            //writes the columns
+
+            // writes the columns to the top
             String columns = "id,dateTimeStarted";
+            // add all segment names
             for (int i = 0; i < segmentNames.length; i++) {
-                columns = columns + "," + segmentNames[i];
+                columns += "," + segmentNames[i];
             }
             pw.println(columns);
+
             // writes all the data
             for (int i=0; i < runsList.length - 1; i++) {
                 String runData = runsList[i].getProperty("id") + "," + runsList[i].getProperty("dateTimeStarted");
+                // add all the segment times
                 for (int j = 0; j < segmentNames.length; j++) {
                     runData = runData + "," + runsList[i].getProperty(segmentNames[j], "-1");
                 }
                 pw.println(runData);
             }
+
             pw.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static String timeStrToSec(String timeStr) {
+    private static String timeStrToSec(String timeStr) {
         if (timeStr == "") return "";
         int hour = Integer.parseInt(timeStr.substring(0, 2));
         int min = Integer.parseInt(timeStr.substring(3, 5));
@@ -138,5 +145,14 @@ public class App {
         min += hour * 60.0;
         sec += min * 60.0;
         return Double.toString(sec);
+    }
+
+    private static int findIndexOfPropertyWithIDInList (Properties[] propertyList, String id) {
+        for (int i = 0; i < propertyList.length; i++) {
+            if (propertyList[i].getProperty("id").equals(id)) {
+                return i;
+            }
+        }
+        return -1;
     }
 }
