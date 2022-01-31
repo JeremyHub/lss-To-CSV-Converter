@@ -1,5 +1,5 @@
 ## What it does
-  Hopefully it turns your .lss files from LiveSplit into CSV files.
+  Turns your .lss files from LiveSplit into CSV files.
   
 ## How to use
   Download the code (make sure you have a jdk intalled) and run the App.java in the /scr folder.
